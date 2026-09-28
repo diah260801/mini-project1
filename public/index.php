@@ -12,9 +12,12 @@ $q = sanitize_input($_GET['q'] ?? '');
 
 if ($q !== '') {
     // Parameterized search query aman dari SQL Injection
-    $sql = "SELECT * FROM products WHERE name LIKE :q OR category LIKE :q ORDER BY id DESC";
+    $sql = "SELECT * FROM products WHERE name LIKE :name_search OR category LIKE :category_search ORDER BY id DESC";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([':q' => "%{$q}%"]);
+    $stmt->execute([
+        ':name_search' => "%{$q}%",
+        ':category_search' => "%{$q}%",
+    ]);
 } else {
     // Read seluruh produk
     $sql = "SELECT * FROM products ORDER BY id DESC";
