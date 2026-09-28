@@ -1,123 +1,92 @@
-# Product Information System - Mini Project PHP
+# 📦 Product Manager — Web Application (PHP & MySQL PDO)
 
-![Product Information System Preview](assets/app-preview.png)
+Aplikasi Web Manajemen Inventaris Produk modern yang dibangun menggunakan **PHP Native (PDO)** dan **MySQL** sesuai dengan spesifikasi tugas akhir *Pemrograman Web - Pertemuan 3*.
 
-> **Mini Project 1: Product Information System** adalah aplikasi berbasis web menggunakan PHP Native yang dibangun dengan pendekatan **Arsitektur Desain Konseptual 3-Tier** (Data Layer, Processing Layer, dan Presentation Layer).
-
----
-
-## 📌 Fitur Utama
-
-- 📊 **Monitoring Data Produk**: Menampilkan daftar produk lengkap dengan ID, Nama, Kategori, Harga, Stok, dan Deskripsi.
-- 💰 **Kalkulasi Otomatis Nilai Aset**: Menghitung total nilai aset gudang berdasarkan perkalian harga dan stok secara real-time (`harga * stok`).
-- ⚠️ **Deteksi Stok Kritis (< 3)**: Menyoroti (*highlight*) baris tabel dengan warna khusus dan memberikan badge peringatan otomatis untuk produk dengan jumlah stok di bawah 3 unit.
-- 🎨 **Tampilan Responsive & Modern**: Menggunakan Bootstrap 5 dan Font Awesome untuk antarmuka pengguna yang bersih dan informatif.
+Aplikasi ini menerapkan arsitektur terpisah (*Separation of Concerns*), standar keamanan web industri (CSRF Protection, XSS Output Escaping, Prepared Statements), serta antarmuka responsif berbasis Card Flexbox.
 
 ---
 
-## 🏗️ Struktur Arsitektur Sistem (3-Tier Concept)
+## ✨ Fitur Utama
 
-Project ini memisahkan tanggung jawab kode menjadi 3 berkas terpisah:
+- ** Create**: Tambah produk baru dengan validasi server-side ketat (nama min. 3 karakter & unik, harga $\ge 0$, stok $\ge 0$).
+- ** Read**: Tampilan produk berbasis kartu responsif (Flexbox / Grid) dilengkapi indikator stok kritis ($< 5$), total estimasi nilai aset, dan ringkasan statistik.
+- ** Update**: Edit data produk berdasarkan ID dengan form terisi otomatis dan validasi nama unik terhadap produk lain.
+- ** Delete**: Penghapusan data produk yang aman menggunakan **Metode POST** & **Token CSRF** untuk mencegah penyerangan unauthorized action.
+- ** Search (Fitur Bonus)**: Pencarian cepat produk berdasarkan nama atau kategori menggunakan parameter `GET` dan PDO Prepared Statement (`WHERE name LIKE :q OR category LIKE :q`).
+- ** CSRF Protection & PRG Pattern**: Menggunakan **Post-Redirect-Get (PRG)** dan session flash message untuk mencegah pengiriman data ganda saat refresh halaman.
+- ** Output Escaping**: Seluruh output variabel di-escape menggunakan `htmlspecialchars($var, ENT_QUOTES, 'UTF-8')` untuk mencegah celah keamanan Cross-Site Scripting (XSS).
 
-```text
-Mini_project_diah/
-├── assets/
-│   └── app-preview.png     # Foto screenshot tampilan program
-├── products.php            # 1. Data Layer (Multidimensional Array)
-├── functions.php           # 2. Processing Layer (Fungsi Logika & Kalkulasi)
-├── index.php               # 3. Presentation Layer (Layout HTML & Perulangan Foreach)
-├── .gitignore              # Penyaringan berkas Git
-└── README.md               # Dokumentasi Project & Panduan GitHub
+---
+
+## 📁 Struktur Proyek
+
+```
+product-manager/
+├── config/
+│   └── db.php          # Koneksi PDO MySQL/SQLite, Helper CSRF & Escaping
+├── database/
+│   └── store_db.sql    # Skema Database & Sample Initial Data
+├── public/
+│   ├── assets/
+│   │   └── style.css   # Custom Responsive Styling & Animations
+│   ├── create.php      # CREATE Endpoint (Form + Validasi + PRG)
+│   ├── delete.php      # DELETE Endpoint (POST + CSRF Token)
+│   ├── edit.php        # UPDATE Endpoint (READ by ID + Update + PRG)
+│   └── index.php       # READ & SEARCH Endpoint (Dashboard Cards)
+├── index.php           # Entry Redirect ke public/index.php
+└── README.md           # Dokumentasi Lengkap Proyek
 ```
 
-### 1. Data Layer (`products.php`)
-Bertindak sebagai sumber data (*mock database*). Menampung `multidimensional array` yang menyimpan seluruh atribut komoditas produk (ID, Nama, Kategori, Harga, Stok, Deskripsi).
-
-### 2. Processing Layer (`functions.php`)
-Berisi kumpulan fungsi pemrosesan logika bisnis:
-- `hitungTotalNilaiStok(array $products)`: Menghitung total akumulasi nilai aset gudang.
-- `isStokKritis(int $stok)`: Memeriksa apakah stok berada di bawah batas aman (`< 3`).
-- `getRowStyleClass(int $stok)`: Memberikan class CSS penanda baris tabel untuk stok kritis.
-- `formatRupiah(float $angka)`: Memformat nominal angka ke format mata uang Rupiah.
-
-### 3. Presentation Layer (`index.php`)
-Merajut seluruh komponen menggunakan `require_once` dan merender data ke layout tabel HTML interaktif menggunakan perulangan `foreach`.
-
 ---
 
-## 📸 Petunjuk Penataan Foto Screenshot (`assets/`)
+## 🛠️ Persyaratan Sistem & Instalasi
 
-Untuk menampilkan foto screenshot tampilan program Anda sendiri di dalam file `README.md` ini, ikuti langkah berikut:
+### 1. Prasyarat
+- PHP 8.0 atau yang lebih baru (dengan ekstensi `pdo_mysql` atau `pdo_sqlite`).
+- MySQL / MariaDB Server (misalnya via XAMPP, Laragon, atau Standalone MySQL).
 
-1. Ambil screenshot (*tangkap layar*) aplikasi yang berjalan di browser Anda.
-2. Simpan atau rename file foto tersebut menjadi: **`app-preview.png`** (atau `app-preview.jpg`).
-3. Pindahkan file foto tersebut ke dalam folder **`assets/`** di direktori project:
-   ```text
-   assets/app-preview.png
-   ```
-4. Gambar di bagian atas `README.md` akan otomatis memperbarui tampilan screenshot aplikasi Anda.
-
----
-
-## 🚀 Cara Menjalankan Project (Lokal)
-
-### Menggunakan PHP Built-in Server (Rekomendasi / Praktis)
-1. Buka Terminal / PowerShell / Command Prompt di folder project ini.
-2. Jalankan perintah berikut:
+### 2. Import Database SQL
+1. Buka phpMyAdmin / MySQL CLI / DBeaver.
+2. Buat database baru bernama `store_db` atau jalankan file `database/store_db.sql`:
    ```bash
-   php -S localhost:8000
+   mysql -u root -p < database/store_db.sql
    ```
-   *(Jika menggunakan XAMPP di Windows dan perintah `php` belum masuk PATH system:)*
-   ```powershell
-   C:\xampp\php\php.exe -S localhost:8000
-   ```
-3. Buka browser dan akses alamat: `http://localhost:8000`
 
-### Menggunakan XAMPP (htdocs)
-1. Salin/Pindahkan folder `Mini_project_diah` ke dalam folder `C:\xampp\htdocs\`.
-2. Pastikan service Apache di XAMPP Control Panel sudah dalam posisi **Start**.
-3. Buka browser dan akses: `http://localhost/Mini_project_diah/`
+### 3. Konfigurasi Database (`config/db.php`)
+Secara default, aplikasi mengonfigurasi koneksi ke:
+- **Host**: `127.0.0.1`
+- **Database**: `store_db`
+- **Username**: `root`
+- **Password**: *(kosong)*
+
+Jika menggunakan kredensial berbeda, Anda dapat menyesuaikannya langsung di file `config/db.php` atau melalui Environment Variables.
 
 ---
 
-## 🐙 Panduan Lengkap Upload ke GitHub (Repository)
+## 🚀 Cara Menjalankan Aplikasi
 
-Berikut adalah langkah-langkah perintah Terminal untuk memasukkan project ini ke repository GitHub Anda:
+Jalankan PHP Built-in Web Server dari direktori proyek:
 
-### 1. Inisialisasi Git Lokal
-Buka terminal di folder project, lalu jalankan:
 ```bash
-git init
+php -S localhost:8000 -t public
 ```
 
-### 2. Tambahkan Semua Berkas ke Staging Area
-```bash
-git add .
-```
-
-### 3. Buat Commit Pertama
-```bash
-git commit -m "feat: initial commit product information system 3-tier php project"
-```
-
-### 4. Ubah Nama Branch Utama ke `main`
-```bash
-git branch -M main
-```
-
-### 5. Hubungkan ke Repository GitHub
-1. Buat Repository baru di akun [GitHub](https://github.com/new) Anda (misal nama repo: `Mini_project_diah`).
-2. Salin URL repository GitHub Anda (contoh: `https://github.com/username/Mini_project_diah.git`).
-3. Jalankan perintah berikut di terminal:
-```bash
-git remote add origin https://github.com/USERNAME_ANDA/Mini_project_diah.git
-```
-*(Ganti `USERNAME_ANDA` dengan username GitHub Anda).*
-
-### 6. Push Project ke GitHub
-```bash
-git push -u origin main
-```
+Buka peramban (browser) dan akses:
+👉 **[http://localhost:8000](http://localhost:8000)**
 
 ---
-*Dibuat untuk memenuhi tugas Mini Project 1: Product Information System (Desain & Implementasi).*
+
+## 🛡️ Jaminan Keamanan & Best Practices
+
+1. **Prepared Statements (PDO)**:
+   Semua query ke database (`INSERT`, `SELECT`, `UPDATE`, `DELETE`, `SEARCH`) menggunakan PDO Prepared Statements untuk mencegah **SQL Injection**.
+2. **XSS Escaping**:
+   Penggunaan fungsi `e()` atau `htmlspecialchars($value, ENT_QUOTES, 'UTF-8')` pada seluruh data yang dirender ke elemen HTML.
+3. **Mencegah Duplicate Submission (PRG)**:
+   Setiap proses penambahan, pengubahan, dan penghapusan data selalu diakhiri dengan `header('Location: index.php')` dan pengalihan pesan via `$_SESSION['flash']`.
+4. **Proteksi CSRF**:
+   Penghapusan produk mewajibkan token unik `csrf_token` yang diverifikasi menggunakan `hash_equals()` pada request `POST`.
+
+---
+
+Developed with ❤️ for Pemrograman Web Mini Project.
